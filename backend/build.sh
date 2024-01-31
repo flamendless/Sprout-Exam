@@ -15,13 +15,18 @@ run() {
 }
 
 analyze() {
-	echo "Running: poetry run ruff check ."
-	poetry run ruff check .
+	echo "Running: poetry run ruff check src/"
+	poetry run ruff check src/
+}
+
+fix() {
+	echo "Running: poetry run ruff check --fix src/"
+	poetry run ruff check --fix src/
 }
 
 if [ "$#" -eq 0 ]; then
 	echo "First use: chmod +x build.sh"
-	echo "Usage: ./build.sh run | analyze"
+	echo "Usage: ./build.sh run | analyze | fix"
 else
 	"$1" "$@"
 fi
