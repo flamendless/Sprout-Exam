@@ -17,12 +17,17 @@ from src.models.employee import (
     EmployeePatch,
     EmployeeResponse,
 )
+from src.models.project import ProjectResponse
+from src.models.benefit import BenefitResponse
 from src.types import T_ADMIN
 from src.utils import (
     create_audit,
     get_filter_clause,
     get_update_clause,
     tuple_to_pydantic,
+    get_employee_projects,
+    get_employee_benefits,
+    populate_employee,
 )
 
 router = APIRouter(
@@ -58,10 +63,23 @@ async def get_employees(
     res_employees: list[tuple | None] = res_employees.fetchmany(
         pagination.per_page,
     )
+
+    employee_ids: list[int] = [
+        employee[0]
+        for employee in res_employees
+    ]
+    projects: dict[list] = get_employee_projects(employee_ids)
+    benefits: dict[list] = get_employee_benefits(employee_ids)
+
     data: list[EmployeeResponse] = [
         tuple_to_pydantic(EmployeeResponse, employee)
         for employee in res_employees
     ]
+
+    d: EmployeeResponse
+    for d in data:
+        d = populate_employee(d, projects, benefits)
+
     return EmployeePaginated(data=data, pagination=pagination)
 
 
@@ -89,7 +107,13 @@ async def get_employee_by_id(
     res_employee: tuple | None = res_employee.fetchone()
     if res_employee is None:
         raise EXC_RES_NOT_FOUND
-    return tuple_to_pydantic(EmployeeResponse, res_employee)
+
+    employee_ids: list[int] = [employeed_id]
+    projects: dict[list] = get_employee_projects(employee_ids)
+    benefits: dict[list] = get_employee_benefits(employee_ids)
+    res: EmployeeResponse = tuple_to_pydantic(EmployeeResponse, res_employee)
+    res = populate_employee(res, projects, benefits)
+    return res
 
 
 @router.get(
@@ -116,7 +140,13 @@ async def get_employee_by_email(
     res_employee: tuple | None = res_employee.fetchone()
     if res_employee is None:
         raise EXC_RES_NOT_FOUND
-    return tuple_to_pydantic(EmployeeResponse, res_employee)
+
+    employee_ids: list[int] = [res_employee[0]]
+    projects: dict[list] = get_employee_projects(employee_ids)
+    benefits: dict[list] = get_employee_benefits(employee_ids)
+    res: EmployeeResponse = tuple_to_pydantic(EmployeeResponse, res_employee)
+    res = populate_employee(res, projects, benefits)
+    return res
 
 
 @router.post(
