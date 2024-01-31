@@ -4,11 +4,12 @@ from fastapi import APIRouter, Depends, status
 from fastapi.responses import Response
 from pydantic import EmailStr
 
-from src.const import EXC_NOT_FOUND
+from src.const import EXC_RES_CREATE_FAILED, EXC_RES_NOT_FOUND
 from src.context import pwd
 from src.db import conn
 from src.models.base import Pagination
 from src.models.employee import (
+    EmployeeCreate,
     EmployeeFilter,
     EmployeePaginated,
     EmployeePatch,
@@ -80,7 +81,7 @@ async def get_employee_by_id(
     res_employee = cur.execute(sql, (employeed_id,))
     res_employee: tuple | None = res_employee.fetchone()
     if res_employee is None:
-        raise EXC_NOT_FOUND
+        raise EXC_RES_NOT_FOUND
     return tuple_to_pydantic(EmployeeResponse, res_employee)
 
 
@@ -107,8 +108,48 @@ async def get_employee_by_email(
     res_employee = cur.execute(sql, (email,))
     res_employee: tuple | None = res_employee.fetchone()
     if res_employee is None:
-        raise EXC_NOT_FOUND
+        raise EXC_RES_NOT_FOUND
     return tuple_to_pydantic(EmployeeResponse, res_employee)
+
+
+@router.post(
+    "/",
+    response_model=EmployeeResponse,
+)
+async def create_employee(
+    current_user: T_ADMIN,
+    create_data: Annotated[EmployeeCreate, Depends()],
+):
+    create_data.password = pwd.hash(create_data.password)
+    data: dict = create_data.model_dump()
+
+    sql: str = """
+        INSERT INTO tbl_employee(
+            email, password, first_name,
+            last_name, type, number_of_leaves,
+            created_at, updated_at
+        )
+        VALUES(?, ?, ?, ?, ?, ?, DATE('NOW'), DATE('NOW'))
+    """
+    cur = conn.cursor()
+    res = cur.execute(sql, tuple(data.values()))
+    conn.commit()
+    if res.rowcount == 0:
+        raise EXC_RES_CREATE_FAILED
+
+    sql = """
+        SELECT
+            id, created_at, updated_at,
+            email, password, first_name,
+            last_name, type, number_of_leaves
+        FROM
+            tbl_employee
+        WHERE
+            id = ?
+    """
+    res = cur.execute(sql, (res.lastrowid,))
+    res = cur.fetchone()
+    return tuple_to_pydantic(EmployeeResponse, res)
 
 
 @router.patch(
@@ -127,7 +168,7 @@ async def patch_employee_by_id(
     )
     res_employee: tuple | None = res_employee.fetchone()
     if res_employee is None:
-        raise EXC_NOT_FOUND
+        raise EXC_RES_NOT_FOUND
 
     if "password" in patch_data:
         patch_data["password"] = pwd.hash(patch_data["password"])
@@ -142,6 +183,31 @@ async def patch_employee_by_id(
 
     cur = conn.cursor()
     res = cur.execute(sql, (*patch_data.values(), employee_id))
+    conn.commit()
+    if res.rowcount == 0:
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(status_code=status.HTTP_200_OK)
+
+
+@router.delete(
+    "/{employee_id}",
+    response_class=Response,
+)
+async def delete_employee_by_id(
+    current_user: T_ADMIN,
+    employee_id: int,
+):
+    cur = conn.cursor()
+    res_employee = cur.execute(
+        "SELECT id FROM tbl_employee WHERE id = ?",
+        (employee_id,),
+    )
+    res_employee: tuple | None = res_employee.fetchone()
+    if res_employee is None:
+        raise EXC_RES_NOT_FOUND
+
+    cur = conn.cursor()
+    res = cur.execute("DELETE FROM tbl_employee WHERE id = ?", (employee_id,))
     conn.commit()
     if res.rowcount == 0:
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

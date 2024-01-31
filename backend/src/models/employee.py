@@ -23,6 +23,15 @@ class EmployeeDB(DB):
     number_of_leaves: int | None = Field(default=None)
 
 
+class EmployeeCreate(BaseModel):
+    email: EmailStr
+    password: str
+    first_name: str
+    last_name: str
+    type: EmployeeType
+    number_of_leaves: int | None = Field(default=None)
+
+
 class EmployeePatch(BaseModel):
     email: EmailStr | None = Field(default=None)
     password: str | None = Field(default=None)
