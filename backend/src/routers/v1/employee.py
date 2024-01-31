@@ -1,12 +1,14 @@
+from datetime import UTC, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Depends, status
 from fastapi.responses import Response
 from pydantic import EmailStr
 
 from src.const import EXC_RES_CREATE_FAILED, EXC_RES_NOT_FOUND
 from src.context import pwd
 from src.db import conn
+from src.enums import AuditAction
 from src.models.base import Pagination
 from src.models.employee import (
     EmployeeCreate,
@@ -16,7 +18,12 @@ from src.models.employee import (
     EmployeeResponse,
 )
 from src.types import T_ADMIN
-from src.utils import get_filter_clause, get_update_clause, tuple_to_pydantic
+from src.utils import (
+    create_audit,
+    get_filter_clause,
+    get_update_clause,
+    tuple_to_pydantic,
+)
 
 router = APIRouter(
     prefix="/employee",
@@ -119,6 +126,7 @@ async def get_employee_by_email(
 async def create_employee(
     current_user: T_ADMIN,
     create_data: Annotated[EmployeeCreate, Depends()],
+    bg_tasks: BackgroundTasks,
 ):
     create_data.password = pwd.hash(create_data.password)
     data: dict = create_data.model_dump()
@@ -136,6 +144,17 @@ async def create_employee(
     conn.commit()
     if res.rowcount == 0:
         raise EXC_RES_CREATE_FAILED
+
+    bg_tasks.add_task(
+        create_audit,
+        (
+            res.lastrowid,
+            "tbl_employee",
+            AuditAction.CREATE.value,
+            f"Created employee: {create_data.email}",
+            datetime.now(tz=UTC)
+        )
+    )
 
     sql = """
         SELECT
@@ -160,6 +179,7 @@ async def patch_employee_by_id(
     current_user: T_ADMIN,
     employee_id: int,
     patch_data: Annotated[EmployeePatch, Depends()],
+    bg_tasks: BackgroundTasks,
 ):
     cur = conn.cursor()
     res_employee = cur.execute(
@@ -173,19 +193,31 @@ async def patch_employee_by_id(
     if "password" in patch_data:
         patch_data["password"] = pwd.hash(patch_data["password"])
 
-    patch_data: dict = patch_data.model_dump(exclude_none=True)
-    if not patch_data:
+    patch_data_d: dict = patch_data.model_dump(exclude_none=True)
+    if not patch_data_d:
         return Response(status_code=status.HTTP_200_OK)
 
     sql: str = "UPDATE tbl_employee"
-    sql += get_update_clause(patch_data)
+    sql += get_update_clause(patch_data_d)
     sql += "WHERE id = ?;"
 
     cur = conn.cursor()
-    res = cur.execute(sql, (*patch_data.values(), employee_id))
+    res = cur.execute(sql, (*patch_data_d.values(), employee_id))
     conn.commit()
     if res.rowcount == 0:
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    bg_tasks.add_task(
+        create_audit,
+        (
+            employee_id,
+            "tbl_employee",
+            AuditAction.UPDATE.value,
+            f"Updated employee: {employee_id}",
+            datetime.now(tz=UTC)
+        )
+    )
+
     return Response(status_code=status.HTTP_200_OK)
 
 
@@ -196,6 +228,7 @@ async def patch_employee_by_id(
 async def delete_employee_by_id(
     current_user: T_ADMIN,
     employee_id: int,
+    bg_tasks: BackgroundTasks,
 ):
     cur = conn.cursor()
     res_employee = cur.execute(
@@ -211,4 +244,16 @@ async def delete_employee_by_id(
     conn.commit()
     if res.rowcount == 0:
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    bg_tasks.add_task(
+        create_audit,
+        (
+            employee_id,
+            "tbl_employee",
+            AuditAction.DELETE.value,
+            f"Deleted employee: {employee_id}",
+            datetime.now(tz=UTC)
+        )
+    )
+
     return Response(status_code=status.HTTP_200_OK)

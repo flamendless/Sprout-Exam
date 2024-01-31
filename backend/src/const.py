@@ -15,10 +15,10 @@ EXC_TOKEN_EXPIRED: HTTPException = HTTPException(
 
 EXC_RES_NOT_FOUND: HTTPException = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
-    detail="No resource found",
+    detail="Resource not found",
 )
 
 EXC_RES_CREATE_FAILED: HTTPException = HTTPException(
-    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR ,
+    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
     detail="Failed creating resource",
 )
