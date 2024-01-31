@@ -2,16 +2,8 @@ from pydantic import BaseModel, EmailStr, Field
 
 from src.enums import EmployeeType
 from src.models.base import DB, Filter, Pagination
-
-
-class BenefitDB(DB):
-    name: str
-    description: str
-
-
-class ProjectDB(DB):
-    name: str
-    description: str
+from src.models.benefit import BenefitDB
+from src.models.project import ProjectDB
 
 
 class EmployeeDB(DB):
