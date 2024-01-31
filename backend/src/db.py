@@ -1,13 +1,11 @@
 import logging
 import sqlite3
-
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from sqlite3 import Connection
 
 from src.const import DB_NAME
 from src.context import pwd
 from src.enums import EmployeeType
-
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +26,9 @@ def setup_db() -> None:
         tbl_benefit(
             id          INTEGER PRIMARY KEY,
             name        TEXT,
-            description TEXT
+            description TEXT,
+            created_at  TEXT NOT NULL,
+            updated_at  TEXT NOT NULL
         );
     """)
 
@@ -37,7 +37,9 @@ def setup_db() -> None:
         tbl_project(
             id          INTEGER PRIMARY KEY,
             name        TEXT,
-            description TEXT
+            description TEXT,
+            created_at  TEXT NOT NULL,
+            updated_at  TEXT NOT NULL
         );
     """)
 
@@ -59,18 +61,18 @@ def setup_db() -> None:
     cur.execute("""
         CREATE TABLE IF NOT EXISTS
         tbl_employee_benefit(
-            id         INTEGER PRIMARY KEY,
-            user_id    INTEGER NOT NULL,
-            benefit_id INTEGER NOT NULL
+            id          INTEGER PRIMARY KEY,
+            employee_id INTEGER NOT NULL,
+            benefit_id  INTEGER NOT NULL
         );
     """)
 
     cur.execute("""
         CREATE TABLE IF NOT EXISTS
         tbl_employee_project(
-            id         INTEGER PRIMARY KEY,
-            user_id    INTEGER NOT NULL,
-            project_id INTEGER NOT NULL
+            id          INTEGER PRIMARY KEY,
+            employee_id INTEGER NOT NULL,
+            project_id  INTEGER NOT NULL
         );
     """)
 

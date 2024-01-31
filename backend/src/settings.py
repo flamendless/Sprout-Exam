@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     allowed_origins: list[str] = ["*"]
     refresh_token_expire_minutes: int = 86400
     secret_key: str
+    pagination_max_per_page: int = 100
 
     model_config = SettingsConfigDict(
         env_file=".env",

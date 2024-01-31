@@ -1,12 +1,9 @@
 from fastapi import APIRouter, status
 from fastapi.responses import Response
 
-from src.const import API_VERSION
-
-
 router = APIRouter(
-    prefix=API_VERSION,
-    tags=["api"]
+    prefix="/check",
+    tags=["api"],
 )
 
 

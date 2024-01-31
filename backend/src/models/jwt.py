@@ -9,3 +9,7 @@ class Token(BaseModel):
     expires_in: int
     refresh_token: str
     type: EmployeeType
+
+
+class TokenData(BaseModel):
+    username: str
