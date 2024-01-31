@@ -89,6 +89,7 @@ def setup_db() -> None:
     """)
 
     create_admin()
+    create_index()
 
 
 def create_admin() -> None:
@@ -122,3 +123,16 @@ def create_admin() -> None:
             VALUES(?, ?, ?, ?, ?, ?, ?)
         """, data)
         conn.commit()
+
+
+def create_index() -> None:
+    logger.info("Creating db index...")
+
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE INDEX IF NOT EXISTS
+        "tbl_employee_idx_type" ON "tbl_employee" (
+            "type"	ASC
+        );
+    """)
+    conn.commit()
