@@ -9,6 +9,7 @@ from src.routers.v1 import (
     auth,
     benefit,
     employee,
+    project,
 )
 
 app = FastAPI(title="Sprout Exam API")
@@ -16,6 +17,7 @@ app = FastAPI(title="Sprout Exam API")
 app.include_router(api.router, prefix=API_VERSION)
 app.include_router(auth.router, prefix=API_VERSION)
 app.include_router(employee.router, prefix=API_VERSION)
+app.include_router(project.router, prefix=API_VERSION)
 app.include_router(benefit.router, prefix=API_VERSION)
 
 setup_middlewares(app)
