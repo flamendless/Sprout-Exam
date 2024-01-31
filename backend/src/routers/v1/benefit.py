@@ -7,6 +7,7 @@ from fastapi.responses import Response
 from src.const import EXC_RES_CREATE_FAILED, EXC_RES_NOT_FOUND
 from src.db import conn
 from src.enums import AuditAction
+from src.models.assignments import BenefitAssignEmployees
 from src.models.base import Pagination
 from src.models.benefit import (
     BenefitCreate,
@@ -215,6 +216,66 @@ async def delete_benefit_by_id(
             "tbl_benefit",
             AuditAction.DELETE.value,
             f"Deleted benefit: {benefit_id}",
+            datetime.now(tz=UTC)
+        )
+    )
+
+    return Response(status_code=status.HTTP_200_OK)
+
+
+@router.post(
+    "/{benefit_id}/assign",
+    response_class=Response,
+)
+async def benefit_assign_employees(
+    current_user: T_ADMIN,
+    benefit_id: int,
+    assign_data: Annotated[BenefitAssignEmployees, Depends()],
+    bg_tasks: BackgroundTasks,
+):
+    cur = conn.cursor()
+    res_benefit = cur.execute(
+        "SELECT id FROM tbl_benefit WHERE id = ?",
+        (benefit_id,),
+    )
+    res_benefit: tuple | None = res_benefit.fetchone()
+    if res_benefit is None:
+        raise EXC_RES_NOT_FOUND
+
+    if not assign_data.employee_ids:
+        return Response(status_code=status.HTTP_200_OK)
+
+    qms: str = ("?, " * (len(assign_data.employee_ids) - 1)) + "?"
+    res_employees = cur.execute("""
+        SELECT id FROM tbl_employee
+        WHERE id IN (%s)
+    """ % qms, tuple(assign_data.employee_ids))
+    res_employees: list[tuple | None] = res_employees.fetchmany(
+        len(assign_data.employee_ids),
+    )
+
+    data: list = [
+        (employee[0], benefit_id)
+        for employee in res_employees
+    ]
+
+    res = cur.executemany("""
+        INSERT INTO
+        tbl_employee_benefit(employee_id, benefit_id)
+        VALUES(?, ?)
+    """, data)
+    conn.commit()
+    if res.rowcount == 0:
+        return Response(status_code=status.HTTP_200_OK)
+
+    emp_ids: list[int] = [employee[0] for employee in res_employees]
+    bg_tasks.add_task(
+        create_audit,
+        (
+            benefit_id,
+            "tbl_employee_benefit",
+            AuditAction.UPDATE.value,
+            f"Assigned to benefit {benefit_id} the employees: {emp_ids}",
             datetime.now(tz=UTC)
         )
     )

@@ -7,6 +7,7 @@ from fastapi.responses import Response
 from src.const import EXC_RES_CREATE_FAILED, EXC_RES_NOT_FOUND
 from src.db import conn
 from src.enums import AuditAction
+from src.models.assignments import ProjectAssignEmployees
 from src.models.base import Pagination
 from src.models.project import (
     ProjectCreate,
@@ -218,4 +219,64 @@ async def delete_project_by_id(
             datetime.now(tz=UTC)
         )
     )
+    return Response(status_code=status.HTTP_200_OK)
+
+
+@router.post(
+    "/{project_id}/assign",
+    response_class=Response,
+)
+async def project_assign_employees(
+    current_user: T_ADMIN,
+    project_id: int,
+    assign_data: Annotated[ProjectAssignEmployees, Depends()],
+    bg_tasks: BackgroundTasks,
+):
+    cur = conn.cursor()
+    res_project = cur.execute(
+        "SELECT id FROM tbl_project WHERE id = ?",
+        (project_id,),
+    )
+    res_project: tuple | None = res_project.fetchone()
+    if res_project is None:
+        raise EXC_RES_NOT_FOUND
+
+    if not assign_data.employee_ids:
+        return Response(status_code=status.HTTP_200_OK)
+
+    qms: str = ("?, " * (len(assign_data.employee_ids) - 1)) + "?"
+    res_employees = cur.execute("""
+        SELECT id FROM tbl_employee
+        WHERE id IN (%s)
+    """ % qms, tuple(assign_data.employee_ids))
+    res_employees: list[tuple | None] = res_employees.fetchmany(
+        len(assign_data.employee_ids),
+    )
+
+    data: list = [
+        (employee[0], project_id)
+        for employee in res_employees
+    ]
+
+    res = cur.executemany("""
+        INSERT INTO
+        tbl_employee_project(employee_id, project_id)
+        VALUES(?, ?)
+    """, data)
+    conn.commit()
+    if res.rowcount == 0:
+        return Response(status_code=status.HTTP_200_OK)
+
+    emp_ids: list[int] = [employee[0] for employee in res_employees]
+    bg_tasks.add_task(
+        create_audit,
+        (
+            project_id,
+            "tbl_employee_project",
+            AuditAction.UPDATE.value,
+            f"Assigned to project {project_id} the employees: {emp_ids}",
+            datetime.now(tz=UTC)
+        )
+    )
+
     return Response(status_code=status.HTTP_200_OK)
