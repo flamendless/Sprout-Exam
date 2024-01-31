@@ -17,5 +17,5 @@
 - `cd Sprout-Exam/backend`
 - Install dependencies using `poetry install`
 - Activate the shell with `poetry shell`
-- Create local `.env` in the project root
+- Create local `.env` in the project root or use the template `sample.env` with `cp sample.env .env`
 - Run server with `poetry run uvicorn src.main:app --reload --port 7777`
