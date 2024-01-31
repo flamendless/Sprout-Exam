@@ -63,7 +63,8 @@ def setup_db() -> None:
         tbl_employee_benefit(
             id          INTEGER PRIMARY KEY,
             employee_id INTEGER NOT NULL,
-            benefit_id  INTEGER NOT NULL
+            benefit_id  INTEGER NOT NULL,
+            UNIQUE(employee_id, benefit_id) ON CONFLICT IGNORE
         );
     """)
 
@@ -72,7 +73,8 @@ def setup_db() -> None:
         tbl_employee_project(
             id          INTEGER PRIMARY KEY,
             employee_id INTEGER NOT NULL,
-            project_id  INTEGER NOT NULL
+            project_id  INTEGER NOT NULL,
+            UNIQUE(employee_id, project_id) ON CONFLICT IGNORE
         );
     """)
 
