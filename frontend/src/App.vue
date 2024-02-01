@@ -1,6 +1,5 @@
 <script setup>
 import { RouterView } from "vue-router";
-import Login from "./components/Login.vue";
 </script>
 
 <template>
@@ -12,10 +11,6 @@ import Login from "./components/Login.vue";
 			width="256"
 			height="125"
 		/>
-
-		<div class="wrapper">
-			<Login />
-		</div>
 	</header>
 
 	<RouterView />

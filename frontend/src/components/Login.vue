@@ -2,9 +2,13 @@
 import { ref } from "vue";
 import CONST from "@/const.js";
 import axios from "axios";
+import router from "@/router";
 import { useTokenStore } from "@/stores/token";
 
 const token = useTokenStore();
+if (token.type == "admin") {
+	router.replace({path: "/admin"});
+}
 
 const input_username = ref("");
 const input_password = ref("");
@@ -25,6 +29,10 @@ async function handle_submit(e) {
 				token.refresh_token = res.data.refresh_token;
 				token.token_type = res.data.token_type;
 				token.type = res.data.type;
+
+				if (token.type == "admin") {
+					router.replace({path: "/admin"});
+				}
 			}
 		})
 		.catch((error) => {
@@ -65,6 +73,7 @@ async function handle_submit(e) {
 
 <style scoped>
 .login {
+	margin-top: 2em;
 	align-self: center;
 	padding: 4em;
 	border-style: solid;
