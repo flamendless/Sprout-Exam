@@ -9,8 +9,8 @@ defineProps({
 	fetch_employees: {
 		type: Function,
 		required: true
-	},
-})
+	}
+});
 </script>
 
 <template>
@@ -20,16 +20,8 @@ defineProps({
 		</button>
 
 		<button @click="admin.toggle_layout">
-			<span
-				v-if="admin.layout == 'grid'"
-				class="pi pi-list"
-			>
-			</span>
-			<span
-				v-else="admin.layout == 'list'"
-				class="pi pi-table"
-			>
-			</span>
+			<span v-if="admin.layout == 'grid'" class="pi pi-list"> </span>
+			<span v-else="admin.layout == 'list'" class="pi pi-table"> </span>
 		</button>
 
 		<button @click="auth.logout">

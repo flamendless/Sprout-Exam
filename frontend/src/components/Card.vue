@@ -7,13 +7,13 @@ defineProps({
 	last_name: {
 		type: String,
 		required: true
-	},
-})
+	}
+});
 </script>
 
 <template>
 	<div class="card">
-		<h4>{{first_name}} {{last_name}}</h4>
+		<h4>{{ first_name }} {{ last_name }}</h4>
 		<div class="buttons">
 			<button>
 				<span class="pi pi-list"></span>

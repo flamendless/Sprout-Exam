@@ -1,10 +1,9 @@
 import { defineStore } from "pinia";
 
-
 export const useAdminStore = defineStore("admin", {
 	state: () => ({
 		data: [],
-		layout: "grid",
+		layout: "grid"
 	}),
 
 	actions: {
@@ -15,5 +14,5 @@ export const useAdminStore = defineStore("admin", {
 				this.layout = "grid";
 			}
 		}
-	},
+	}
 });

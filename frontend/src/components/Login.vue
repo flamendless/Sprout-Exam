@@ -5,7 +5,7 @@ import { useAuthStore } from "@/stores/auth.js";
 
 const auth = useAuthStore();
 if (auth.token.type == "admin") {
-	router.replace({path: "/admin"});
+	router.replace({ path: "/admin" });
 }
 
 const input_username = ref("");
