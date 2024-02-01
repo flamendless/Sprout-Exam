@@ -3,7 +3,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, BackgroundTasks, Depends, status, Body
 from fastapi.responses import Response
-from pydantic import EmailStr
 
 from src.const import EXC_RES_CREATE_FAILED, EXC_RES_NOT_FOUND
 from src.context import pwd
@@ -47,7 +46,8 @@ async def get_employees(
         SELECT
             id, created_at, updated_at,
             email, password, first_name,
-            last_name, type, number_of_leaves
+            last_name, type, number_of_leaves,
+            contract_end_date
         FROM
             tbl_employee
     """
@@ -82,12 +82,12 @@ async def get_employees(
 
 
 @router.get(
-    "/id={employee_id}",
+    "/{employee_id}",
     response_model=EmployeeResponse,
 )
 async def get_employee_by_id(
     current_user: T_ADMIN,
-    employeed_id: int,
+    employee_id: int,
 ):
     sql: str = """
         SELECT
@@ -101,45 +101,12 @@ async def get_employee_by_id(
     """
 
     cur = conn.cursor()
-    res_employee = cur.execute(sql, (employeed_id,))
+    res_employee = cur.execute(sql, (employee_id,))
     res_employee: tuple | None = res_employee.fetchone()
     if res_employee is None:
         raise EXC_RES_NOT_FOUND
 
-    employee_ids: list[int] = [employeed_id]
-    projects: dict[list] = get_employee_projects(employee_ids)
-    benefits: dict[list] = get_employee_benefits(employee_ids)
-    res: EmployeeResponse = tuple_to_pydantic(EmployeeResponse, res_employee)
-    res = populate_employee(res, projects, benefits)
-    return res
-
-
-@router.get(
-    "/email={email}",
-    response_model=EmployeeResponse,
-)
-async def get_employee_by_email(
-    current_user: T_ADMIN,
-    email: EmailStr,
-):
-    sql: str = """
-        SELECT
-            id, created_at, updated_at,
-            email, password, first_name,
-            last_name, type, number_of_leaves
-        FROM
-            tbl_employee
-        WHERE
-            email = ?
-    """
-
-    cur = conn.cursor()
-    res_employee = cur.execute(sql, (email,))
-    res_employee: tuple | None = res_employee.fetchone()
-    if res_employee is None:
-        raise EXC_RES_NOT_FOUND
-
-    employee_ids: list[int] = [res_employee[0]]
+    employee_ids: list[int] = [employee_id]
     projects: dict[list] = get_employee_projects(employee_ids)
     benefits: dict[list] = get_employee_benefits(employee_ids)
     res: EmployeeResponse = tuple_to_pydantic(EmployeeResponse, res_employee)
@@ -163,9 +130,9 @@ async def create_employee(
         INSERT INTO tbl_employee(
             email, password, first_name,
             last_name, type, number_of_leaves,
-            created_at, updated_at
+            contract_end_date, created_at, updated_at
         )
-        VALUES(?, ?, ?, ?, ?, ?, DATE('NOW'), DATE('NOW'))
+        VALUES(?, ?, ?, ?, ?, ?, ?, DATE('NOW'), DATE('NOW'))
     """
     cur = conn.cursor()
     res = cur.execute(sql, tuple(data.values()))
@@ -188,7 +155,8 @@ async def create_employee(
         SELECT
             id, created_at, updated_at,
             email, password, first_name,
-            last_name, type, number_of_leaves
+            last_name, type, number_of_leaves,
+            contract_end_date
         FROM
             tbl_employee
         WHERE

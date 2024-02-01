@@ -6,6 +6,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from src.db import conn, new_conn
+from src.enums import EmployeeType
 from src.models.benefit import BenefitResponse
 from src.models.employee import EmployeeResponse
 from src.models.project import ProjectResponse
@@ -125,12 +126,14 @@ def populate_employee(
     projects: dict[list],
     benefits: dict[list]
 ) -> None:
-    employee.projects = [
-        tuple_to_pydantic(ProjectResponse, project)
-        for project in projects[employee.id]
-    ]
-    employee.benefits = [
-        tuple_to_pydantic(BenefitResponse, benefit)
-        for benefit in benefits[employee.id]
-    ]
+    if employee.type in (EmployeeType.REGULAR, EmployeeType.ADMIN):
+        employee.benefits = [
+            tuple_to_pydantic(BenefitResponse, benefit)
+            for benefit in benefits[employee.id]
+        ]
+    if employee.type in (EmployeeType.CONTRACTUAL, EmployeeType.ADMIN):
+        employee.projects = [
+            tuple_to_pydantic(ProjectResponse, project)
+            for project in projects[employee.id]
+        ]
     return employee

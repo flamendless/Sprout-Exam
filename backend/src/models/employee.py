@@ -1,4 +1,7 @@
-from pydantic import BaseModel, EmailStr, Field
+from datetime import datetime
+from typing import Any
+
+from pydantic import BaseModel, EmailStr, Field, model_validator
 
 from src.enums import EmployeeType
 from src.models.base import DB, Filter, Pagination
@@ -13,6 +16,7 @@ class EmployeeDB(DB):
     last_name: str
     type: EmployeeType
     number_of_leaves: int | None = Field(default=None)
+    contract_end_date: datetime | None = Field(default=None)
 
 
 class EmployeeCreate(BaseModel):
@@ -22,6 +26,19 @@ class EmployeeCreate(BaseModel):
     last_name: str
     type: EmployeeType
     number_of_leaves: int | None = Field(default=None)
+    contract_end_date: datetime | None = Field(default=None)
+
+    @model_validator(mode="after")
+    @classmethod
+    def validate(cls, data: Any) -> Any:
+        if (
+            (data.type == EmployeeType.CONTRACTUAL) and
+            (not data.contract_end_date)
+        ):
+            raise ValueError(
+                "REQUIRED: contract end date for contractual employee"
+            )
+        return data
 
 
 class EmployeePatch(BaseModel):
@@ -31,12 +48,22 @@ class EmployeePatch(BaseModel):
     last_name: str | None = Field(default=None)
     type: EmployeeType | None = Field(default=None)
     number_of_leaves: int | None = Field(default=None)
+    contract_end_date: datetime | None = Field(default=None)
 
 
 class EmployeeResponse(EmployeeDB):
     password: str | None = Field(default=None, exclude=True)
     benefits: list[BenefitDB] | None = Field(default=None)
     projects: list[ProjectDB] | None = Field(default=None)
+
+    @model_validator(mode="after")
+    @classmethod
+    def validate(cls, data: Any) -> Any:
+        if data.type == EmployeeType.REGULAR:
+            data.contract_end_date = None
+        elif data.type == EmployeeType.CONTRACTUAL:
+            data.number_of_leaves = None
+        return data
 
 
 class EmployeePaginated(BaseModel):

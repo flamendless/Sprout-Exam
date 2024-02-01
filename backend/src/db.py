@@ -46,15 +46,16 @@ def setup_db() -> None:
     cur.execute("""
         CREATE TABLE IF NOT EXISTS
         tbl_employee(
-            id               INTEGER PRIMARY KEY,
-            email            TEXT NOT NULL UNIQUE,
-            password         TEXT NOT NULL,
-            first_name       TEXT NOT NULL,
-            last_name        TEXT NOT NULL,
-            type             TEXT CHECK( type IN ('regular', 'contractual', 'admin') ),
-            number_of_leaves INTEGER,
-            created_at       TEXT NOT NULL,
-            updated_at       TEXT NOT NULL
+            id                INTEGER PRIMARY KEY,
+            email             TEXT NOT NULL UNIQUE,
+            password          TEXT NOT NULL,
+            first_name        TEXT NOT NULL,
+            last_name         TEXT NOT NULL,
+            type              TEXT CHECK( type IN ('regular', 'contractual', 'admin') ),
+            number_of_leaves  INTEGER,
+            contract_end_date TEXT,
+            created_at        TEXT NOT NULL,
+            updated_at        TEXT NOT NULL
         );
     """)
 
