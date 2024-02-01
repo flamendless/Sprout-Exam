@@ -260,6 +260,12 @@ async def delete_employee_by_id(
     employee_id: int,
     bg_tasks: BackgroundTasks,
 ):
+    if current_user.id == employee_id:
+        return Response(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content="Can't delete yourself",
+        )
+
     cur = conn.cursor()
     res_employee = cur.execute(
         "SELECT id FROM tbl_employee WHERE id = ?",
