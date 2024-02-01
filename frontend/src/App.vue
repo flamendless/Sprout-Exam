@@ -21,7 +21,9 @@ header {
 	padding-top: 2rem;
 	line-height: 1.5;
 	max-height: 100vh;
+	display: flex;
 	flex-direction: column;
+	align-items: center;
 }
 
 .logo {

@@ -32,7 +32,8 @@ export const useAdminStore = defineStore("admin", {
 				})
 				.then(function (res) {
 					admin.is_loading = false;
-					if (!res || res.status != 200) return;
+					if (!res || res.status != 200)
+						return;
 					admin.data = res.data.data;
 				})
 				.catch(function (error) {
