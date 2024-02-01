@@ -6,6 +6,7 @@
 
 See [frontend setup](https://github.com/flamendless/tree/main/frontend/README.md)
 
+- [Axios](https://axios-http.com/) - Promise based HTTP client for nodejs
 - [Bun](https://bun.sh/) - Fast Javascript runtime
 - [ESLint](https://eslint.org/) - Linter
 - [Pinia](https://pinia.vuejs.org/) - Vue state management/store
