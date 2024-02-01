@@ -5,10 +5,10 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from src.db import new_conn, conn
+from src.db import conn, new_conn
+from src.models.benefit import BenefitResponse
 from src.models.employee import EmployeeResponse
 from src.models.project import ProjectResponse
-from src.models.benefit import BenefitResponse
 
 
 def tuple_to_pydantic(pydantic_class: BaseModel, data: tuple) -> BaseModel:

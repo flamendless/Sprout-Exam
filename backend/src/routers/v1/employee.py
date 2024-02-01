@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, BackgroundTasks, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Depends, status, Body
 from fastapi.responses import Response
 from pydantic import EmailStr
 
@@ -17,17 +17,15 @@ from src.models.employee import (
     EmployeePatch,
     EmployeeResponse,
 )
-from src.models.project import ProjectResponse
-from src.models.benefit import BenefitResponse
 from src.types import T_ADMIN
 from src.utils import (
     create_audit,
+    get_employee_benefits,
+    get_employee_projects,
     get_filter_clause,
     get_update_clause,
-    tuple_to_pydantic,
-    get_employee_projects,
-    get_employee_benefits,
     populate_employee,
+    tuple_to_pydantic,
 )
 
 router = APIRouter(
@@ -155,7 +153,7 @@ async def get_employee_by_email(
 )
 async def create_employee(
     current_user: T_ADMIN,
-    create_data: Annotated[EmployeeCreate, Depends()],
+    create_data: Annotated[EmployeeCreate, Body()],
     bg_tasks: BackgroundTasks,
 ):
     create_data.password = pwd.hash(create_data.password)
@@ -208,7 +206,7 @@ async def create_employee(
 async def patch_employee_by_id(
     current_user: T_ADMIN,
     employee_id: int,
-    patch_data: Annotated[EmployeePatch, Depends()],
+    patch_data: Annotated[EmployeePatch, Body()],
     bg_tasks: BackgroundTasks,
 ):
     cur = conn.cursor()
