@@ -93,7 +93,8 @@ async def get_employee_by_id(
         SELECT
             id, created_at, updated_at,
             email, password, first_name,
-            last_name, type, number_of_leaves
+            last_name, type, number_of_leaves,
+            contract_end_date
         FROM
             tbl_employee
         WHERE
