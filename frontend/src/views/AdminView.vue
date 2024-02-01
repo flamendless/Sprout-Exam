@@ -1,12 +1,12 @@
 <script setup>
-import { ref, computed } from "vue";
-import CONST from "@/const.js";
+import { computed } from "vue";
 import Card from "@/components/Card.vue";
 import Toolbar from "@/components/Toolbar.vue";
+import CreateForm from "@/components/CreateForm.vue";
 import { useAuthStore } from "@/stores/auth.js";
 import { useAdminStore } from "@/stores/admin.js";
 import router from "@/router";
-import axios from "axios";
+import { onMounted } from "vue";
 
 const auth = useAuthStore();
 if (auth.token.type != "admin") {
@@ -14,52 +14,38 @@ if (auth.token.type != "admin") {
 }
 
 const admin = useAdminStore();
+onMounted(function () {
+	admin.get_employees();
+});
 
-const is_loading = ref(true);
 const style_cards = computed({
 	get() {
-		let dir = "column";
+		let dir;
 		if (admin.layout == "list") {
+			dir = "column";
+		} else if (admin.layout == "grid") {
 			dir = "row";
 		}
 		return {
 			marginTop: "2em",
 			display: "flex",
-			flexDirection: dir
+			flexDirection: dir,
+			flexWrap: "wrap"
 		};
 	}
 });
-
-function get_employees() {
-	console.log("fetching employees...");
-	is_loading.value = true;
-	axios
-		.get(`${CONST.API_URL}/employee/`, {
-			headers: { Authorization: `Bearer ${auth.token.access_token}` }
-		})
-		.then(function (res) {
-			is_loading.value = false;
-			if (!res || res.status != 200) return;
-			admin.data = res.data.data;
-		})
-		.catch(function (error) {
-			alert(error?.response?.data?.detail);
-			is_loading.value = false;
-		});
-	console.log("done fetching employees");
-}
-
-get_employees();
 </script>
 
 <template>
 	<h1>Admin View</h1>
-	<Toolbar :fetch_employees="get_employees" />
-	<div v-if="is_loading" class="card-container"></div>
+	<Toolbar />
+	<CreateForm v-if="admin.show_create_form" />
+	<div v-if="admin.is_loading" class="card-container"></div>
 	<div v-else class="card-container" :style="style_cards">
 		<Card
 			:id="idx"
 			v-for="(emp, idx) in admin.data"
+			:employee_id="emp.id"
 			:first_name="emp.first_name"
 			:last_name="emp.last_name"
 		/>

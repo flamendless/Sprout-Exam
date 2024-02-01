@@ -4,19 +4,16 @@ import { useAuthStore } from "@/stores/auth.js";
 
 const admin = useAdminStore();
 const auth = useAuthStore();
-
-defineProps({
-	fetch_employees: {
-		type: Function,
-		required: true
-	}
-});
 </script>
 
 <template>
 	<div class="toolbar">
-		<button @click="fetch_employees">
+		<button @click="admin.get_employees">
 			<span class="pi pi-refresh"></span>
+		</button>
+
+		<button @click="admin.toggle_create_form">
+			<span class="pi pi-plus-circle"> </span>
 		</button>
 
 		<button @click="admin.toggle_layout">

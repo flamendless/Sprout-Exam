@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
+import axios from "axios";
 import router from "@/router";
 import CONST from "@/const.js";
-import axios from "axios";
 
 export const useAuthStore = defineStore("auth", {
 	persist: true,

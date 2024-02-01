@@ -11,7 +11,7 @@ if (auth.token.type == "admin") {
 const input_username = ref("");
 const input_password = ref("");
 
-async function handle_submit(e) {
+function handle_submit(e) {
 	e.preventDefault();
 	const form_data = new FormData();
 	form_data.append("username", input_username.value);
