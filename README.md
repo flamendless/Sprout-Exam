@@ -11,6 +11,7 @@ See [frontend setup](https://github.com/flamendless/tree/main/frontend/README.md
 - [ESLint](https://eslint.org/) - Linter
 - [Pinia](https://pinia.vuejs.org/) - Vue state management/store
 - [Prettier](https://prettier.io/) - Code formatter
+- [PrimeIcons](https://primevue.org/icons) - Icons
 - [Vite](https://vitejs.dev/) - Frontend tooling
 - [Vue 3](https://vuejs.org/) - Web framework
 
