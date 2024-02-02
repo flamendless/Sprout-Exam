@@ -1,6 +1,7 @@
 from fastapi import status
 from httpx import AsyncClient
 
+from src.const import API_VERSION
 from src.main import app
 
 
@@ -33,3 +34,20 @@ async def authentications(client: AsyncClient, prefix: str) -> None:
     for route in routes_put:
         res = await client.put(route)
         assert res.status_code == status.HTTP_401_UNAUTHORIZED, f"PUT {route=}"
+
+
+async def get_admin_token(client: AsyncClient) -> str:
+    res = await client.post(
+        f"{API_VERSION}/auth/token",
+        data={
+            "grant_type": "password",
+            "username": "admin@admin.com",
+            "password": "admin",
+        }
+    )
+    assert res.status_code == status.HTTP_200_OK, res.read()
+    return res.json()["access_token"]
+
+
+def basic_dt_comp(dt1: str, dt2: str) -> bool:
+    return dt1[:10] == dt2[:10]

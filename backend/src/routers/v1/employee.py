@@ -202,8 +202,6 @@ async def patch_employee_by_id(
     sql += get_update_clause(patch_data_d)
     sql += "WHERE id = ?;"
 
-    conn = new_conn()
-    cur = conn.cursor()
     res = cur.execute(sql, (*patch_data_d.values(), employee_id))
     conn.commit()
     if res.rowcount == 0:

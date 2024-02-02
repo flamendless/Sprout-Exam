@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, BackgroundTasks, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, status
 from fastapi.responses import Response
 
 from src.const import EXC_RES_CREATE_FAILED, EXC_RES_NOT_FOUND
@@ -64,7 +64,7 @@ async def get_benefits(
 
 
 @router.get(
-    "/id={benefit_id}",
+    "/{benefit_id}",
     response_model=BenefitResponse,
 )
 async def get_benefit_by_id(
@@ -95,7 +95,7 @@ async def get_benefit_by_id(
 )
 async def create_benefit(
     current_user: T_ADMIN,
-    create_data: Annotated[BenefitCreate, Depends()],
+    create_data: Annotated[BenefitCreate, Body()],
     bg_tasks: BackgroundTasks,
 ):
     data: dict = create_data.model_dump()
@@ -146,7 +146,7 @@ async def create_benefit(
 async def patch_benefit_by_id(
     current_user: T_ADMIN,
     benefit_id: int,
-    patch_data: Annotated[BenefitPatch, Depends()],
+    patch_data: Annotated[BenefitPatch, Body()],
     bg_tasks: BackgroundTasks,
 ):
     conn = new_conn()

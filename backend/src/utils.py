@@ -16,7 +16,7 @@ def tuple_to_pydantic(pydantic_class: BaseModel, data: tuple) -> BaseModel:
     return pydantic_class(
         **{
             k: v
-            for k, v in zip(pydantic_class.__fields__.keys(), data)
+            for k, v in zip(pydantic_class.model_fields.keys(), data)
         }
     )
 
