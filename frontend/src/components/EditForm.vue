@@ -15,13 +15,17 @@ const types = ["admin", "regular", "contractual"];
 const input_contract_end_date = ref("");
 
 const benefits = computed({
-	get() { return admin.benefits },
-})
+	get() {
+		return admin.benefits;
+	}
+});
 const input_benefit = ref("");
 
 const projects = computed({
-	get() { return admin.projects },
-})
+	get() {
+		return admin.projects;
+	}
+});
 const input_project = ref("");
 
 const employee_data = computed({
@@ -35,10 +39,10 @@ const employee_data = computed({
 				input_type.value = d.type;
 				input_number_of_leaves.value = d.number_of_leaves;
 				input_contract_end_date.value = d.contract_end_date;
-				return d
+				return d;
 			}
 		}
-		return {}
+		return {};
 	}
 });
 
@@ -74,7 +78,7 @@ function handle_submit(e) {
 		last_name: input_last_name.value,
 		type: input_type.value,
 		number_of_leaves: input_number_of_leaves.value,
-		contract_end_date: input_contract_end_date.value,
+		contract_end_date: input_contract_end_date.value
 	};
 
 	Object.keys(data).forEach((key) => {
@@ -86,7 +90,7 @@ function handle_submit(e) {
 	admin.update_employee(admin.edit_id, data);
 }
 
-onMounted(function() {
+onMounted(function () {
 	admin.get_benefits();
 	admin.get_projects();
 });
@@ -94,7 +98,7 @@ onMounted(function() {
 
 <template>
 	<div class="form">
-		<h1>Edit Employee {{admin.edit_id}}</h1>
+		<h1>Edit Employee {{ admin.edit_id }}</h1>
 		<form id="create_form" @submit.prevent="handle_submit">
 			<div class="info">
 				<div class="inputs">
@@ -173,27 +177,39 @@ onMounted(function() {
 						/>
 					</label>
 
-					<label for="benefit-choice" v-if="employee_data.type == 'regular' || employee_data.type == 'admin'">
+					<label
+						for="benefit-choice"
+						v-if="employee_data.type == 'regular' || employee_data.type == 'admin'"
+					>
 						<input
 							list="benefit-choices"
 							v-model="input_benefit"
 							:required="employee_data.type == 'regular'"
 						/>
 					</label>
-					<datalist id="benefit-choices" v-if="employee_data.type == 'regular' || employee_data.type == 'admin'">
+					<datalist
+						id="benefit-choices"
+						v-if="employee_data.type == 'regular' || employee_data.type == 'admin'"
+					>
 						<option v-for="benefit in benefits" :value="benefit.name">
 							{{ benefit.name }}
 						</option>
 					</datalist>
 
-					<label for="project-choice" v-if="employee_data.type == 'contractual' || employee_data.type == 'admin'">
+					<label
+						for="project-choice"
+						v-if="employee_data.type == 'contractual' || employee_data.type == 'admin'"
+					>
 						<input
 							list="project-choices"
 							v-model="input_project"
 							:required="employee_data.type == 'contractual'"
 						/>
 					</label>
-					<datalist id="project-choices" v-if="employee_data.type == 'contractual' || employee_data.type == 'admin'">
+					<datalist
+						id="project-choices"
+						v-if="employee_data.type == 'contractual' || employee_data.type == 'admin'"
+					>
 						<option v-for="project in projects" :value="project.name">
 							{{ project.name }}
 						</option>
@@ -207,10 +223,17 @@ onMounted(function() {
 					<label>first name</label>
 					<label>last name</label>
 					<label>type</label>
-					<label v-if="employee_data.type == 'admin' || employee_data.type == 'regular'">number of leaves</label>
+					<label v-if="employee_data.type == 'admin' || employee_data.type == 'regular'"
+						>number of leaves</label
+					>
 					<label v-if="employee_data.type == 'contractual'">contract end date</label>
-					<label v-if="employee_data.type == 'regular' || employee_data.type == 'admin'">add benefit</label>
-					<label v-if="employee_data.type == 'contractual' || employee_data.type == 'admin'">add project</label>
+					<label v-if="employee_data.type == 'regular' || employee_data.type == 'admin'"
+						>add benefit</label
+					>
+					<label
+						v-if="employee_data.type == 'contractual' || employee_data.type == 'admin'"
+						>add project</label
+					>
 				</div>
 			</div>
 

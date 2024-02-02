@@ -19,7 +19,7 @@ export const useAdminStore = defineStore("admin", {
 		//but Pinia dislikes map in states
 		employees: [],
 		benefits: [],
-		projects: [],
+		projects: []
 	}),
 
 	actions: {
@@ -42,13 +42,11 @@ export const useAdminStore = defineStore("admin", {
 			if (employee_id == -1) {
 				this.show_edit_form = false;
 				this.edit_id = employee_id;
-				return
+				return;
 			}
 
-			if (this.edit_id == -1)
-				this.show_edit_form = true;
-			else
-				this.show_edit_form = employee_id != this.edit_id;
+			if (this.edit_id == -1) this.show_edit_form = true;
+			else this.show_edit_form = employee_id != this.edit_id;
 			this.edit_id = employee_id;
 		},
 
@@ -60,8 +58,7 @@ export const useAdminStore = defineStore("admin", {
 					headers: { Authorization: `Bearer ${auth.token.access_token}` }
 				})
 				.then(function (res) {
-					if (!res || res.status != 200)
-						return;
+					if (!res || res.status != 200) return;
 					admin.employees[res.data.id] = res.data;
 				})
 				.catch(function (error) {
@@ -80,8 +77,7 @@ export const useAdminStore = defineStore("admin", {
 				})
 				.then(function (res) {
 					admin.is_loading = false;
-					if (!res || res.status != 200)
-						return;
+					if (!res || res.status != 200) return;
 					admin.data = res.data.data;
 				})
 				.catch(function (error) {
@@ -99,8 +95,7 @@ export const useAdminStore = defineStore("admin", {
 					headers: { Authorization: `Bearer ${auth.token.access_token}` }
 				})
 				.then(function (res) {
-					if (!res || res.status != 200)
-						return;
+					if (!res || res.status != 200) return;
 
 					if (data.type == "regular" || data.type == "admin") {
 						admin.assign_employee_to_benefit(res.data.id, benefit_name);
@@ -139,8 +134,7 @@ export const useAdminStore = defineStore("admin", {
 					headers: { Authorization: `Bearer ${auth.token.access_token}` }
 				})
 				.then(function (res) {
-					if (!res || res.status != 200)
-						return;
+					if (!res || res.status != 200) return;
 					admin.get_employee_by_id(admin.edit_id);
 					admin.get_employees();
 					admin.toggle_edit_form(-1);
@@ -165,8 +159,7 @@ export const useAdminStore = defineStore("admin", {
 
 		delete_employee(employee_id) {
 			const sure = confirm("Are you sure you want to delete this employee?");
-			if (sure === false)
-				return;
+			if (sure === false) return;
 			const auth = useAuthStore();
 			const admin = this;
 			axios
@@ -174,8 +167,7 @@ export const useAdminStore = defineStore("admin", {
 					headers: { Authorization: `Bearer ${auth.token.access_token}` }
 				})
 				.then(function (res) {
-					if (!res || res.status != 200)
-						return;
+					if (!res || res.status != 200) return;
 					admin.get_employees();
 				})
 				.catch(function (error) {
@@ -192,8 +184,7 @@ export const useAdminStore = defineStore("admin", {
 					headers: { Authorization: `Bearer ${auth.token.access_token}` }
 				})
 				.then(function (res) {
-					if (!res || res.status != 200)
-						return;
+					if (!res || res.status != 200) return;
 					admin.benefits = res.data.data;
 				})
 				.catch(function (error) {
@@ -211,8 +202,7 @@ export const useAdminStore = defineStore("admin", {
 					headers: { Authorization: `Bearer ${auth.token.access_token}` }
 				})
 				.then(function (res) {
-					if (!res || res.status != 200)
-						return;
+					if (!res || res.status != 200) return;
 					admin.projects = res.data.data;
 				})
 				.catch(function (error) {
@@ -226,22 +216,20 @@ export const useAdminStore = defineStore("admin", {
 
 			let benefit_id = -1;
 			for (let i = 0; i < admin.benefits.length; i++) {
-				const benefit = admin.benefits[i]
+				const benefit = admin.benefits[i];
 				if (benefit.name == benefit_name) {
 					benefit_id = benefit.id;
-					break
+					break;
 				}
 			}
 
 			const auth = useAuthStore();
 			axios
-				.post(`${CONST.API_URL}/benefit/${benefit_id}/assign`,
-					[employee_id],
-					{ headers: { Authorization: `Bearer ${auth.token.access_token}` }}
-				)
+				.post(`${CONST.API_URL}/benefit/${benefit_id}/assign`, [employee_id], {
+					headers: { Authorization: `Bearer ${auth.token.access_token}` }
+				})
 				.then(function (res) {
-					if (!res || res.status != 200)
-						return;
+					if (!res || res.status != 200) return;
 				})
 				.catch(function (error) {
 					alert(error?.response?.data?.detail);
@@ -253,26 +241,24 @@ export const useAdminStore = defineStore("admin", {
 
 			let project_id = -1;
 			for (let i = 0; i < admin.projects.length; i++) {
-				const project = admin.projects[i]
+				const project = admin.projects[i];
 				if (project.name == project_name) {
 					project_id = project.id;
-					break
+					break;
 				}
 			}
 
 			const auth = useAuthStore();
 			axios
-				.post(`${CONST.API_URL}/project/${project_id}/assign`,
-					[employee_id],
-					{ headers: { Authorization: `Bearer ${auth.token.access_token}` }}
-				)
+				.post(`${CONST.API_URL}/project/${project_id}/assign`, [employee_id], {
+					headers: { Authorization: `Bearer ${auth.token.access_token}` }
+				})
 				.then(function (res) {
-					if (!res || res.status != 200)
-						return;
+					if (!res || res.status != 200) return;
 				})
 				.catch(function (error) {
 					alert(error?.response?.data?.detail);
 				});
-		},
+		}
 	}
 });
