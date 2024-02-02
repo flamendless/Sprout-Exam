@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, onMounted } from "vue";
 import { useAdminStore } from "@/stores/admin.js";
+import { EmployeeType } from "@/enums.js";
 
 const admin = useAdminStore();
 
@@ -11,7 +12,7 @@ const input_first_name = ref("");
 const input_last_name = ref("");
 const input_type = ref("");
 const input_number_of_leaves = ref(0);
-const types = ["admin", "regular", "contractual"];
+const types = Object.values(EmployeeType);
 const input_contract_end_date = ref("");
 
 const benefits = computed({

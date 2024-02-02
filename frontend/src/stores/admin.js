@@ -3,6 +3,7 @@ import { useAuthStore } from "@/stores/auth.js";
 import axios from "axios";
 import router from "@/router";
 import CONST from "@/const.js";
+import { EmployeeType } from "@/enums.js";
 
 export const useAdminStore = defineStore("admin", {
 	state: () => ({
@@ -97,11 +98,11 @@ export const useAdminStore = defineStore("admin", {
 				.then(function (res) {
 					if (!res || res.status != 200) return;
 
-					if (data.type == "regular" || data.type == "admin") {
+					if (data.type == EmployeeType.REGULAR || data.type == EmployeeType.ADMIN) {
 						admin.assign_employee_to_benefit(res.data.id, benefit_name);
 					}
 
-					if (data.type == "contractual" || data.type == "admin") {
+					if (data.type == EmployeeType.CONTRACTUAL || data.type == EmployeeType.ADMIN) {
 						admin.assign_employee_to_project(res.data.id, project_name);
 					}
 

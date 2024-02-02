@@ -8,9 +8,10 @@ import { useAuthStore } from "@/stores/auth.js";
 import { useAdminStore } from "@/stores/admin.js";
 import router from "@/router";
 import { onMounted } from "vue";
+import { EmployeeType } from "@/enums.js";
 
 const auth = useAuthStore();
-if (auth.token.type != "admin") {
+if (auth.token.type != EmployeeType.ADMIN) {
 	alert("You have to log in first");
 	router.push({ path: "/" });
 }

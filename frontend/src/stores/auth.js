@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import axios from "axios";
 import router from "@/router";
 import CONST from "@/const.js";
+import { EmployeeType } from "@/enums.js";
 
 export const useAuthStore = defineStore("auth", {
 	persist: true,
@@ -32,7 +33,7 @@ export const useAuthStore = defineStore("auth", {
 					auth.token.refresh_token = res.data.refresh_token;
 					auth.token.token_type = res.data.token_type;
 					auth.token.type = res.data.type;
-					if (auth.token.type == "admin") {
+					if (auth.token.type == EmployeeType.ADMIN) {
 						router.push({ path: "/admin/" });
 					}
 				})

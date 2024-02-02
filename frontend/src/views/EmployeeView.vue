@@ -6,9 +6,10 @@ import { useRoute } from "vue-router";
 import { onMounted } from "vue";
 import EditForm from "@/components/EditForm.vue";
 import router from "@/router";
+import { EmployeeType } from "@/enums.js";
 
 const auth = useAuthStore();
-if (auth.token.type != "admin") {
+if (auth.token.type != EmployeeType.ADMIN) {
 	router.push({ path: "/" });
 }
 

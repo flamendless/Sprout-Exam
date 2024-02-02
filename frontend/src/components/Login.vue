@@ -2,11 +2,10 @@
 import { ref } from "vue";
 import router from "@/router";
 import { useAuthStore } from "@/stores/auth.js";
-import CONST from "@/const.js";
-console.log(CONST.API_URL)
+import { EmployeeType } from "@/enums.js";
 
 const auth = useAuthStore();
-if (auth.token.type == "admin") {
+if (auth.token.type == EmployeeType.ADMIN) {
 	router.push({ path: "/admin/" });
 }
 
