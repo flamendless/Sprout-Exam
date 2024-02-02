@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useAdminStore } from "@/stores/admin.js";
 
 const admin = useAdminStore();
@@ -13,6 +13,16 @@ const input_type = ref("");
 const input_number_of_leaves = ref(0);
 const types = ["admin", "regular", "contractual"];
 const input_contract_end_date = ref("");
+
+const benefits = computed({
+	get() { return admin.benefits },
+})
+const input_benefit = ref("");
+
+const projects = computed({
+	get() { return admin.projects },
+})
+const input_project = ref("");
 
 function handle_submit(e) {
 	e.preventDefault();
@@ -30,8 +40,14 @@ function handle_submit(e) {
 		number_of_leaves: input_number_of_leaves.value,
 		contract_end_date: input_contract_end_date.value,
 	};
-	admin.create_employee(data);
+	admin.create_employee(data, input_benefit.value, input_project.value);
 }
+
+onMounted(function() {
+	admin.get_benefits();
+	admin.get_projects();
+});
+
 </script>
 
 <template>
@@ -103,9 +119,35 @@ function handle_submit(e) {
 							type="datetime-local"
 							v-model="input_contract_end_date"
 							placeholder="contract end date"
-							required
+							:required="input_type == 'contractual'"
 						/>
 					</label>
+
+					<label for="benefit-choice" v-if="input_type == 'regular' || input_type == 'admin'">
+						<input
+							list="benefit-choices"
+							v-model="input_benefit"
+							:required="input_type == 'regular'"
+						/>
+					</label>
+					<datalist id="benefit-choices" v-if="input_type == 'regular' || input_type == 'admin'">
+						<option v-for="benefit in benefits" :value="benefit.name">
+							{{ benefit.name }}
+						</option>
+					</datalist>
+
+					<label for="project-choice" v-if="input_type == 'contractual' || input_type == 'admin'">
+						<input
+							list="project-choices"
+							v-model="input_project"
+							:required="input_type == 'contractual'"
+						/>
+					</label>
+					<datalist id="project-choices" v-if="input_type == 'contractual' || input_type == 'admin'">
+						<option v-for="project in projects" :value="project.name">
+							{{ project.name }}
+						</option>
+					</datalist>
 				</div>
 
 				<div class="labels">
@@ -117,6 +159,8 @@ function handle_submit(e) {
 					<label>type</label>
 					<label v-if="input_type == 'admin' || input_type == 'regular'">number of leaves</label>
 					<label v-if="input_type == 'contractual'">contract end date</label>
+					<label v-if="input_type == 'regular' || input_type == 'admin'">benefit</label>
+					<label v-if="input_type == 'contractual' || input_type == 'admin'">project</label>
 				</div>
 			</div>
 
