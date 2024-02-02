@@ -20,7 +20,7 @@ defineProps({
 });
 
 function view_employee(employee_id) {
-	router.replace({
+	router.push({
 		path: `/employee/${employee_id}`
 	});
 }
@@ -35,9 +35,11 @@ function view_employee(employee_id) {
 			<button @click="view_employee(employee_id)">
 				<span class="pi pi-eye"></span>
 			</button>
-			<button>
+
+			<button @click="admin.toggle_edit_form(employee_id)">
 				<span class="pi pi-user-edit"></span>
 			</button>
+
 			<button @click="admin.delete_employee(employee_id)">
 				<span class="pi pi-trash"></span>
 			</button>

@@ -1,51 +1,48 @@
 <script setup>
-import { ref } from "vue";
+import { computed } from "vue";
 import { useAuthStore } from "@/stores/auth.js";
 import { useAdminStore } from "@/stores/admin.js";
 import { useRoute } from "vue-router";
 import { onMounted } from "vue";
-import axios from "axios";
-import CONST from "@/const.js";
+import EditForm from "@/components/EditForm.vue";
 import router from "@/router";
 
 const auth = useAuthStore();
 if (auth.token.type != "admin") {
-	router.replace({ path: "/" });
+	router.push({ path: "/" });
 }
 
 const route = useRoute();
 const employee_id = route.params.employee_id;
 if (employee_id == null || employee_id == undefined) {
-	router.replace({ path: "/admin" });
+	router.push({ path: "/admin/" });
 }
 
 const admin = useAdminStore();
-const employee_data = ref();
+const employee_data = computed({
+	get() {
+		if (admin.employees.length > employee_id) {
+			return admin.employees[employee_id];
+		}
+		return null;
+	}
+});
 
 function go_back() {
-	router.replace({ path: "/admin" });
+	router.push({ path: "/admin/" });
 }
 
 onMounted(function () {
-	axios
-		.get(`${CONST.API_URL}/employee/${employee_id}`, {
-			headers: { Authorization: `Bearer ${auth.token.access_token}` }
-		})
-		.then(function (res) {
-			if (!res || res.status != 200)
-				return;
-			employee_data.value = res.data;
-			console.log(res.data)
-		})
-		.catch(function (error) {
-			alert(error?.response?.data?.detail);
-		});
+	admin.get_employee_by_id(employee_id);
+	admin.show_edit_form = false;
+	admin.edit_id = -1;
 });
 </script>
 
 <template>
 	<h1>Employee View</h1>
-	<div class="box">
+	<EditForm v-if="admin.show_edit_form" />
+	<div class="box" v-else>
 		<div v-if="employee_data" class="data">
 			<span class="pi pi-user user"></span>
 			<div class="parent">
@@ -54,29 +51,47 @@ onMounted(function () {
 					<h3>E-Mail</h3>
 					<h3>Type</h3>
 
-					<h3 v-if="employee_data.type == 'regular' || employee_data.type == 'admin'">Number of Leaves</h3>
-					<h3 v-if="employee_data.type == 'contractual' || employee_data.type == 'admin'">Contract End Date</h3>
-					<h3 v-if="employee_data.type == 'regular' || employee_data.type == 'admin'" v-for="(_, idx) in employee_data.benefits">Benefit #{{idx+1}}</h3>
-					<h3 v-if="employee_data.type == 'contractual' || employee_data.type == 'admin'" v-for="(_, idx) in employee_data.projects">Project #{{idx+1}}</h3>
+					<h3 v-if="employee_data.type == 'regular' || employee_data.type == 'admin'">
+						Number of Leaves
+					</h3>
+					<h3 v-if="employee_data.type == 'contractual' || employee_data.type == 'admin'">
+						Contract End Date
+					</h3>
+					<h3
+						v-if="employee_data.type == 'regular' || employee_data.type == 'admin'"
+						v-for="(_, idx) in employee_data.benefits"
+					>
+						Benefit #{{ idx + 1 }}
+					</h3>
+					<h3
+						v-if="employee_data.type == 'contractual' || employee_data.type == 'admin'"
+						v-for="(_, idx) in employee_data.projects"
+					>
+						Project #{{ idx + 1 }}
+					</h3>
 				</div>
 				<div class="right">
-					<h3>{{employee_data.first_name}} {{employee_data.last_name}}</h3>
-					<h3>{{employee_data.email}}</h3>
-					<h3>{{employee_data.type}}</h3>
+					<h3>{{ employee_data.first_name }} {{ employee_data.last_name }}</h3>
+					<h3>{{ employee_data.email }}</h3>
+					<h3>{{ employee_data.type }}</h3>
 
-					<h3 v-if="employee_data.type == 'regular' || employee_data.type == 'admin'">{{employee_data.number_of_leaves || 0}}</h3>
-					<h3 v-if="employee_data.type == 'contractual' || employee_data.type == 'admin'">{{employee_data.contract_end_date}}</h3>
+					<h3 v-if="employee_data.type == 'regular' || employee_data.type == 'admin'">
+						{{ employee_data.number_of_leaves || 0 }}
+					</h3>
+					<h3 v-if="employee_data.type == 'contractual' || employee_data.type == 'admin'">
+						{{ employee_data.contract_end_date }}
+					</h3>
 					<h3
 						v-if="employee_data.type == 'regular' || employee_data.type == 'admin'"
 						v-for="benefit in employee_data.benefits"
 					>
-						{{benefit.name}}
+						{{ benefit.name }}
 					</h3>
 					<h3
 						v-if="employee_data.type == 'contractual' || employee_data.type == 'admin'"
 						v-for="project in employee_data.projects"
 					>
-						{{project.name}}
+						{{ project.name }}
 					</h3>
 				</div>
 			</div>
@@ -85,7 +100,7 @@ onMounted(function () {
 				<button @click="go_back">
 					<span class="pi pi-arrow-left"></span>
 				</button>
-				<button>
+				<button @click="admin.toggle_edit_form(employee_id)">
 					<span class="pi pi-user-edit"></span>
 				</button>
 				<button @click="admin.delete_employee(employee_id)">
@@ -157,5 +172,4 @@ h1 {
 	align-self: flex-start;
 	margin: 1em;
 }
-
 </style>

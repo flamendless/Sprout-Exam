@@ -33,17 +33,19 @@ export const useAuthStore = defineStore("auth", {
 					auth.token.token_type = res.data.token_type;
 					auth.token.type = res.data.type;
 					if (auth.token.type == "admin") {
-						router.replace({ path: "/admin" });
+						router.push({ path: "/admin/" });
 					}
 				})
 				.catch(function (error) {
 					auth.err_message = error.response.data.detail;
 				});
 		},
+
 		logout() {
-			console.log(111);
+			const sure = confirm("Are you sure you want to log out?");
+			if (sure === false) return;
 			this.$reset();
-			router.replace({ path: "/" });
+			router.push({ path: "/" });
 		}
 	}
 });

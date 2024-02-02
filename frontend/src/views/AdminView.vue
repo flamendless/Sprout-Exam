@@ -3,6 +3,7 @@ import { computed } from "vue";
 import Card from "@/components/Card.vue";
 import Toolbar from "@/components/Toolbar.vue";
 import CreateForm from "@/components/CreateForm.vue";
+import EditForm from "@/components/EditForm.vue";
 import { useAuthStore } from "@/stores/auth.js";
 import { useAdminStore } from "@/stores/admin.js";
 import router from "@/router";
@@ -10,7 +11,8 @@ import { onMounted } from "vue";
 
 const auth = useAuthStore();
 if (auth.token.type != "admin") {
-	router.replace({ path: "/" });
+	alert("You have to log in first");
+	router.push({ path: "/" });
 }
 
 const admin = useAdminStore();
@@ -40,6 +42,7 @@ const style_cards = computed({
 	<h1>Admin View</h1>
 	<Toolbar />
 	<CreateForm v-if="admin.show_create_form" />
+	<EditForm v-if="admin.show_edit_form" />
 	<div v-if="admin.is_loading" class="card-container"></div>
 	<div v-else class="card-container" :style="style_cards">
 		<Card
