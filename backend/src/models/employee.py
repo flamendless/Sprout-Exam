@@ -28,9 +28,23 @@ class EmployeeCreate(BaseModel):
     number_of_leaves: int | None = Field(default=None)
     contract_end_date: datetime | None = Field(default=None)
 
+    @model_validator(mode="before")
+    def validate_before(cls, data: dict) -> dict:
+        if data["type"] in (
+            EmployeeType.REGULAR.value,
+            EmployeeType.ADMIN.value,
+        ):
+            del data["contract_end_date"]
+        if data["type"] in (
+            EmployeeType.CONTRACTUAL.value,
+            EmployeeType.ADMIN.value,
+        ):
+            del data["number_of_leaves"]
+        return data
+
     @model_validator(mode="after")
     @classmethod
-    def validate(cls, data: Any) -> Any:
+    def validate_after(cls, data: Any) -> Any:
         if (
             (data.type == EmployeeType.CONTRACTUAL) and
             (not data.contract_end_date)

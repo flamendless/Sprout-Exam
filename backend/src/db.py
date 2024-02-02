@@ -25,7 +25,7 @@ def setup_db() -> None:
         CREATE TABLE IF NOT EXISTS
         tbl_benefit(
             id          INTEGER PRIMARY KEY,
-            name        TEXT,
+            name        TEXT UNIQUE,
             description TEXT,
             created_at  TEXT NOT NULL,
             updated_at  TEXT NOT NULL
@@ -36,7 +36,7 @@ def setup_db() -> None:
         CREATE TABLE IF NOT EXISTS
         tbl_project(
             id          INTEGER PRIMARY KEY,
-            name        TEXT,
+            name        TEXT UNIQUE,
             description TEXT,
             created_at  TEXT NOT NULL,
             updated_at  TEXT NOT NULL
