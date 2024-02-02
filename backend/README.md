@@ -24,3 +24,8 @@
 ## Test
 - Install test dependencies with `poetry install --with=test`
 - Run `poetry run pytest -v`
+
+
+## Docker
+- `sudo docker-compose -f docker-compose.yml up --force-recreate -d --build`
+- Check the docs at `http://localhost:8000/docs`

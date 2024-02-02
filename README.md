@@ -26,3 +26,12 @@ See [backend setup](https://github.com/flamendless/tree/main/backend/README.md)
 - [Ruff](https://github.com/astral-sh/ruff) - Fast Python linter and formatter
 - [SQLite3](https://www.sqlite.org/index.html) - Small database engine
 - [Uvicorn](https://www.uvicorn.org/) - ASGI web server for Python
+
+---
+
+## Admin
+
+```
+email/username = admin@admin.com
+password       = admin
+```

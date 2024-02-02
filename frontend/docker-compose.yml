@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  sprout_exam_client:
+    container_name: sprout_exam_client
+    image: sproutexamclient/vue:latest
+    restart: always
+    ports:
+      - 8080:80
+    volumes:
+      - sprout_exam_client:/data
+    networks:
+      - frontend
+
+networks:
+    frontend:
+      driver: bridge
+
+volumes:
+  sprout_exam_client:

@@ -1,0 +1,11 @@
+version: '2'
+services:
+  sprout_exam_api:
+    container_name: sprout_exam_api
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+    ports:
+      - "8000:8000"
