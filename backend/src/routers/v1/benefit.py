@@ -5,7 +5,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, status
 from fastapi.responses import Response
 
 from src.const import EXC_RES_CREATE_FAILED, EXC_RES_NOT_FOUND
-from src.db import conn
+from src.db import new_conn
 from src.enums import AuditAction
 from src.models.assignments import BenefitAssignEmployees
 from src.models.base import Pagination
@@ -51,7 +51,7 @@ async def get_benefits(
     if filter_data:
         sql += get_filter_clause(filter_data)
 
-    cur = conn.cursor()
+    cur = new_conn().cursor()
     res_benefits = cur.execute(sql, tuple(filter_data.values()))
     res_benefits: list[tuple | None] = res_benefits.fetchmany(
         pagination.per_page,
@@ -81,7 +81,7 @@ async def get_benefit_by_id(
             id = ?
     """
 
-    cur = conn.cursor()
+    cur = new_conn().cursor()
     res_benefit = cur.execute(sql, (benefit_id,))
     res_benefit: tuple | None = res_benefit.fetchone()
     if res_benefit is None:
@@ -107,6 +107,7 @@ async def create_benefit(
         )
         VALUES(?, ?, DATE('NOW'), DATE('NOW'))
     """
+    conn = new_conn()
     cur = conn.cursor()
     res = cur.execute(sql, tuple(data.values()))
     conn.commit()
@@ -148,6 +149,7 @@ async def patch_benefit_by_id(
     patch_data: Annotated[BenefitPatch, Depends()],
     bg_tasks: BackgroundTasks,
 ):
+    conn = new_conn()
     cur = conn.cursor()
     res_benefit = cur.execute(
         "SELECT id FROM tbl_benefit WHERE id = ?",
@@ -194,6 +196,7 @@ async def delete_benefit_by_id(
     benefit_id: int,
     bg_tasks: BackgroundTasks,
 ):
+    conn = new_conn()
     cur = conn.cursor()
     res_benefit = cur.execute(
         "SELECT id FROM tbl_benefit WHERE id = ?",
@@ -233,6 +236,7 @@ async def benefit_assign_employees(
     assign_data: Annotated[BenefitAssignEmployees, Depends()],
     bg_tasks: BackgroundTasks,
 ):
+    conn = new_conn()
     cur = conn.cursor()
     res_benefit = cur.execute(
         "SELECT id FROM tbl_benefit WHERE id = ?",

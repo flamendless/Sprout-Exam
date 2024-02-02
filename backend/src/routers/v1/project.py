@@ -5,7 +5,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, status
 from fastapi.responses import Response
 
 from src.const import EXC_RES_CREATE_FAILED, EXC_RES_NOT_FOUND
-from src.db import conn
+from src.db import new_conn
 from src.enums import AuditAction
 from src.models.assignments import ProjectAssignEmployees
 from src.models.base import Pagination
@@ -51,7 +51,7 @@ async def get_projects(
     if filter_data:
         sql += get_filter_clause(filter_data)
 
-    cur = conn.cursor()
+    cur = new_conn().cursor()
     res_projects = cur.execute(sql, tuple(filter_data.values()))
     res_projects: list[tuple | None] = res_projects.fetchmany(
         pagination.per_page,
@@ -81,7 +81,7 @@ async def get_project_by_id(
             id = ?
     """
 
-    cur = conn.cursor()
+    cur = new_conn().cursor()
     res_project = cur.execute(sql, (project_id,))
     res_project: tuple | None = res_project.fetchone()
     if res_project is None:
@@ -107,6 +107,7 @@ async def create_project(
         )
         VALUES(?, ?, DATE('NOW'), DATE('NOW'))
     """
+    conn = new_conn()
     cur = conn.cursor()
     res = cur.execute(sql, tuple(data.values()))
     conn.commit()
@@ -148,6 +149,7 @@ async def patch_project_by_id(
     patch_data: Annotated[ProjectPatch, Depends()],
     bg_tasks: BackgroundTasks,
 ):
+    conn = new_conn()
     cur = conn.cursor()
     res_project = cur.execute(
         "SELECT id FROM tbl_project WHERE id = ?",
@@ -194,6 +196,7 @@ async def delete_project_by_id(
     project_id: int,
     bg_tasks: BackgroundTasks,
 ):
+    conn = new_conn()
     cur = conn.cursor()
     res_project = cur.execute(
         "SELECT id FROM tbl_project WHERE id = ?",
@@ -232,6 +235,7 @@ async def project_assign_employees(
     assign_data: Annotated[ProjectAssignEmployees, Depends()],
     bg_tasks: BackgroundTasks,
 ):
+    conn = new_conn()
     cur = conn.cursor()
     res_project = cur.execute(
         "SELECT id FROM tbl_project WHERE id = ?",

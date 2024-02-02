@@ -6,7 +6,7 @@ from jose import ExpiredSignatureError, JWTError, jwt
 
 from src.const import EXC_INVALID_CREDS, EXC_TOKEN_EXPIRED
 from src.context import oauth2_scheme, pwd
-from src.db import conn
+from src.db import new_conn
 from src.enums import EmployeeType, TokenType
 from src.models.employee import EmployeeDB
 from src.models.jwt import TokenData
@@ -15,7 +15,7 @@ from src.utils import is_value_in_enum, tuple_to_pydantic
 
 
 def get_user(email: str) -> EmployeeDB | None:
-    cur = conn.cursor()
+    cur = new_conn().cursor()
     res_user = cur.execute(
         """
             SELECT

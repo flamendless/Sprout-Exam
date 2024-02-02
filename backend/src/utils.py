@@ -5,7 +5,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from src.db import conn, new_conn
+from src.db import new_conn
 from src.enums import EmployeeType
 from src.models.benefit import BenefitResponse
 from src.models.employee import EmployeeResponse
@@ -82,7 +82,7 @@ def get_employee_projects(employee_ids: list[int]) -> dict[list]:
         WHERE
             tbl_employee_project.employee_id IN (%s)
     """ % qms
-    cur = conn.cursor()
+    cur = new_conn().cursor()
     res_projects = cur.execute(sql_projects, tuple(employee_ids))
     res_projects = res_projects.fetchall()
     projects = defaultdict(list)
@@ -109,7 +109,7 @@ def get_employee_benefits(employee_ids: list[int]) -> dict[list]:
         WHERE
             tbl_employee_benefit.employee_id IN (%s)
     """ % qms
-    cur = conn.cursor()
+    cur = new_conn().cursor()
     res_benefits = cur.execute(sql_benefits, tuple(employee_ids))
     res_benefits = res_benefits.fetchall()
     benefits = defaultdict(list)

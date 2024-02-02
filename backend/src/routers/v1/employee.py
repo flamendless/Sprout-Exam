@@ -6,7 +6,7 @@ from fastapi.responses import Response
 
 from src.const import EXC_RES_CREATE_FAILED, EXC_RES_NOT_FOUND
 from src.context import pwd
-from src.db import conn
+from src.db import new_conn
 from src.enums import AuditAction
 from src.models.base import Pagination
 from src.models.employee import (
@@ -56,6 +56,7 @@ async def get_employees(
     if filter_data:
         sql += get_filter_clause(filter_data)
 
+    conn = new_conn()
     cur = conn.cursor()
     res_employees = cur.execute(sql, tuple(filter_data.values()))
     res_employees: list[tuple | None] = res_employees.fetchmany(
@@ -101,6 +102,7 @@ async def get_employee_by_id(
             id = ?
     """
 
+    conn = new_conn()
     cur = conn.cursor()
     res_employee = cur.execute(sql, (employee_id,))
     res_employee: tuple | None = res_employee.fetchone()
@@ -135,6 +137,7 @@ async def create_employee(
         )
         VALUES(?, ?, ?, ?, ?, ?, ?, DATE('NOW'), DATE('NOW'))
     """
+    conn = new_conn()
     cur = conn.cursor()
     res = cur.execute(sql, tuple(data.values()))
     conn.commit()
@@ -178,6 +181,7 @@ async def patch_employee_by_id(
     patch_data: Annotated[EmployeePatch, Body()],
     bg_tasks: BackgroundTasks,
 ):
+    conn = new_conn()
     cur = conn.cursor()
     res_employee = cur.execute(
         "SELECT id FROM tbl_employee WHERE id = ?",
@@ -198,6 +202,7 @@ async def patch_employee_by_id(
     sql += get_update_clause(patch_data_d)
     sql += "WHERE id = ?;"
 
+    conn = new_conn()
     cur = conn.cursor()
     res = cur.execute(sql, (*patch_data_d.values(), employee_id))
     conn.commit()
@@ -233,6 +238,7 @@ async def delete_employee_by_id(
             content="Can't delete yourself",
         )
 
+    conn = new_conn()
     cur = conn.cursor()
     res_employee = cur.execute(
         "SELECT id FROM tbl_employee WHERE id = ?",

@@ -1,5 +1,6 @@
 import logging
 import sqlite3
+
 from datetime import UTC, datetime
 from sqlite3 import Connection
 
@@ -10,17 +11,19 @@ from src.enums import EmployeeType
 logger = logging.getLogger(__name__)
 
 
-conn: Connection = sqlite3.connect(DB_NAME)
-
-
-def new_conn() -> Connection:
+def _get_db():
     return sqlite3.connect(DB_NAME)
 
 
+def new_conn() -> Connection:
+    return _get_db()
+
+
 def setup_db() -> None:
+    conn = new_conn()
+    cur = conn.cursor()
     logger.info("Setting up database...")
 
-    cur = conn.cursor()
     cur.execute("""
         CREATE TABLE IF NOT EXISTS
         tbl_benefit(
@@ -96,6 +99,7 @@ def setup_db() -> None:
 
 
 def create_admin() -> None:
+    conn = new_conn()
     cur = conn.cursor()
     res = cur.execute(
         "SELECT id FROM tbl_employee WHERE type = ?;",
@@ -130,7 +134,7 @@ def create_admin() -> None:
 
 def create_index() -> None:
     logger.info("Creating db index...")
-
+    conn = new_conn()
     cur = conn.cursor()
     cur.execute("""
         CREATE INDEX IF NOT EXISTS
