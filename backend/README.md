@@ -29,3 +29,33 @@
 ## Docker
 - `sudo docker-compose -f docker-compose.yml up --force-recreate -d --build`
 - Check the docs at `http://localhost:8000/docs`
+
+
+---
+
+## Answer
+
+> If we are going to deploy this on production, what do you think is the next
+improvement that you will prioritize next? This can be a feature, a tech debt, or
+an architectural design
+
+Here are some of the improvements this system can target in the roadmap:
+
+- Features:
+    - Non-admin login system - allow other employee types to use the system for viewing and/or inquiries regarding a project or benefit.
+    - Notification system - notifies the employee and admin for nearing contract end date. (E-mail, SMS, and browser notifications)
+    - File upload - allow uploading of files for either media or document attachments like employees' picture and requirements
+    - Database backup - since the current database uses SQLite, backing it up is very easy
+
+- Tech debt:
+    - Database
+        - dedicated database that is not local and file based like SQLite
+        - async database driver to further utilize the async nature of the framework (ASGI)
+    - Benefit and Project schema
+        - Improve the database schema as well as managing it
+    - Security checker like SNYK
+
+- Architectural design:
+    - Consider cloud infrastracture since the service is small and is fit to be a microservice
+    - Use Sentry or Datadog for better application logs and performance monitoring
+    - Use CI/CD for hassle-free deployments

@@ -35,3 +35,14 @@ See [backend setup](https://github.com/flamendless/tree/main/backend/README.md)
 email/username = admin@admin.com
 password       = admin
 ```
+
+---
+
+## Questions and Answers
+
+> If we are going to deploy this on production, what do you think is the next
+improvement that you will prioritize next? This can be a feature, a tech debt, or
+an architectural design
+
+- See answer for [backend](https://github.com/flamendless/Sprout-Exam/blob/master/backend/README.md#answer)
+- See answer for [frontend](https://github.com/flamendless/Sprout-Exam/blob/master/frontend/README.md#answer)
